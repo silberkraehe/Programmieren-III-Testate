@@ -15,4 +15,5 @@ Benennung von Methoden: englisch, camelCase, passend zu ihrer Funktion (z.B. : a
 Benennung von Variablen: englisch, camelCase 
 
 # ER-Diagram:
-<img width="1938" height="1160" alt="image" src="https://github.com/user-attachments/assets/d833f036-efae-4b75-aaf9-01bb4737574b" />
+<img width="1025" height="830" alt="image" src="https://github.com/user-attachments/assets/39d3fbf6-9297-4b38-9801-17c3e3379068" />
+
