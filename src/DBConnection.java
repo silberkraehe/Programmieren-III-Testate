@@ -8,7 +8,7 @@ public class DBConnection {
     private static String password;
     private static Connection connection;
 
-    public static Connection openConnection(String pUser, String pPasswort) throws ClassNotFoundException, SQLException {
+    public static Connection openConnection(String user, String passwort) throws ClassNotFoundException, SQLException {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         //temp TODO: remove temp jdbc data
         url = "jdbc\\:h2\\:~/tierheim";

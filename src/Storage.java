@@ -1,5 +1,5 @@
 public class Storage {
-    private int maxCapacity;
+    private static int maxCapacity;
 
     public int calculateRequiredQuantity(String category) {
         return 0;
