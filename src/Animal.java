@@ -1,18 +1,20 @@
-public abstract class Animal {
-    private int id;
+import java.util.UUID;
+
+public class Animal {
+    private UUID id;
     private String name;
     private String species;
     private boolean sick;
     private Enclosure enclosure;
 
-    public Animal(int id, String name, String species, Enclosure enclosure) {
+    public Animal(UUID id, String name, String species, Enclosure enclosure) {
         this.id = id;
         this.name = name;
         this.species = species;
         this.enclosure = enclosure;
     }
 
-    public void feet(Item item) {
+    public void feed(Item item) {
 
     }
 
