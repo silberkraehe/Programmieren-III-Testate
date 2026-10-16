@@ -1,35 +1,58 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBConnection {
-    private static String url;
-    private static String user;
-    private static String password;
-    private static Connection connection;
+    private static final String URL = "jdbc:h2:~/tierheim;AUTO_SERVER=TRUE";
+    private final String user = "admin"; // vllt. können wir auch System.getenv("DB_USER") benutzen aber idk how
+    private final String password = "geheim"; // System.getenv("DB_PASSWORD")
 
-    public static Connection openConnection(String user, String passwort) throws ClassNotFoundException, SQLException {
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-        //temp TODO: remove temp jdbc data
-        url = "jdbc\\:h2\\:~/tierheim";
-        user = "admin";
-        password = "geheim";
-        //temp end
-        Connection con = DriverManager.getConnection(url, user, password);
-        return con;
+    /** Allows us to save the data of each result row from an SQL-Query into an actual Java-Object, using directions specified
+     * in the according Class via Interface-Implementation. "map" is the method for turning a ResultSet into an R-Object (Result) of the RowMapper */
+    @FunctionalInterface
+    public interface RowMapper<R> {
+        R map(ResultSet rs) throws SQLException;
     }
 
-    public static void executeSQL(String sql) {
-        try {
-            if(connection.isClosed()) {
-                throw new SQLException("Connection is closed");
+    /** Works only for SELECT-Statements.
+     * @param sql SQL-Query to be executed.
+     * @param mapper A RowMapper that includes the specification on how the SQL-ResultSet is to be extracted and saved. */
+    public <R> List<R> executeQuery(String sql, RowMapper<R> mapper, Object... sqlParams) throws SQLException {
+        try (Connection con = DriverManager.getConnection(URL, user, password);
+             PreparedStatement statement = con.prepareStatement(sql)) {
+             statement.setQueryTimeout(30);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                List<R> result = new ArrayList<>();
+                while (resultSet.next()) {
+                    result.add(mapper.map(resultSet));
+                }
+                return result;
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    public static void closeConnection() throws SQLException {
-        connection.close();
+    /** Executes INSERT/UPDATE/DELETE-Statements. Object... allows any number of sqlParams.
+     * @param sql SQL-Query to be executed.
+     * @param sqlParams An object including a number of SQL Parameters given by the user. */
+    public int executeUpdate(String sql, Object... sqlParams) throws SQLException {
+        try (Connection con = DriverManager.getConnection(URL, user, password);
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setQueryTimeout(30);
+            bind(ps, sqlParams);
+
+            return ps.executeUpdate();
+        }
     }
+
+    private void bind(PreparedStatement statement, Object[] sqlParams) throws SQLException {
+        for (int i = 0; i < sqlParams.length; i++) {
+            statement.setObject(i + 1, sqlParams[i]);
+        }
+    }
+
 }
