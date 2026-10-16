@@ -1,3 +1,4 @@
+import java.util.Date;
 import java.util.UUID;
 
 public class Caretaker {
@@ -15,11 +16,10 @@ public class Caretaker {
     public Caretaker(int id) {
     }
 
-    public void registerAnimal(String pName) {
+    public void registerAnimal(String pName, String species, Date birthday) {
         UUID animalID = UUID.randomUUID();
-        String species = "";
         Enclosure enclosure = null;
-        Animal name = new Animal(animalID, pName, species, enclosure);
+        Animal name = new Animal(pName, species, birthday);
     }
 
     public void adoption(Animal animal) {
