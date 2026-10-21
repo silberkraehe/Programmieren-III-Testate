@@ -6,28 +6,38 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ CI TEST
+ */
+
+
 public class DBConnection {
     private static final String URL = "jdbc:h2:~/tierheim;AUTO_SERVER=TRUE";
     private final String user = "admin"; // vllt. können wir auch System.getenv("DB_USER") benutzen aber idk how
     private final String password = "geheim"; // System.getenv("DB_PASSWORD")
 
-    /** Allows us to save the data of each result row from an SQL-Query into an actual Java-Object, using directions specified
-     * in the according Class via Interface-Implementation. "map" is the method for turning a ResultSet into an R-Object (Result) of the RowMapper */
+    /**
+     * Allows us to save the data of each result row from an SQL-Query into an actual Java-Object, using directions specified
+     * in the according Class via Interface-Implementation. "map" is the method for turning a ResultSet into an R-Object (Result) of the RowMapper
+     */
     @FunctionalInterface
-    public interface RowMapper<R> {
-        R map(ResultSet rs) throws SQLException;
+    public interface RowMapper<E> {
+        E map(ResultSet resultSet) throws SQLException;
     }
 
-    /** Works only for SELECT-Statements.
-     * @param sql SQL-Query to be executed.
-     * @param mapper A RowMapper that includes the specification on how the SQL-ResultSet is to be extracted and saved. */
-    public <R> List<R> executeQuery(String sql, RowMapper<R> mapper, Object... sqlParams) throws SQLException {
-        try (Connection con = DriverManager.getConnection(URL, user, password);
-             PreparedStatement statement = con.prepareStatement(sql)) {
-             statement.setQueryTimeout(30);
+    /**
+     * Works only for SELECT-Statements.
+     *
+     * @param sql    SQL-Query to be executed.
+     * @param mapper A RowMapper that includes the specification on how the SQL-ResultSet is to be extracted and saved.
+     */
+    public <E> List<E> executeQuery(String sql, RowMapper<E> mapper, Object... sqlParams) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(URL, user, password);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setQueryTimeout(30);
 
             try (ResultSet resultSet = statement.executeQuery()) {
-                List<R> result = new ArrayList<>();
+                List<E> result = new ArrayList<>();
                 while (resultSet.next()) {
                     result.add(mapper.map(resultSet));
                 }
@@ -36,16 +46,19 @@ public class DBConnection {
         }
     }
 
-    /** Executes INSERT/UPDATE/DELETE-Statements. Object... allows any number of sqlParams.
-     * @param sql SQL-Query to be executed.
-     * @param sqlParams An object including a number of SQL Parameters given by the user. */
+    /**
+     * Executes INSERT/UPDATE/DELETE-Statements. Object... allows any number of sqlParams.
+     *
+     * @param sql       SQL-Query to be executed.
+     * @param sqlParams An object including a number of SQL Parameters given by the user.
+     */
     public int executeUpdate(String sql, Object... sqlParams) throws SQLException {
-        try (Connection con = DriverManager.getConnection(URL, user, password);
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setQueryTimeout(30);
-            bind(ps, sqlParams);
+        try (Connection connection = DriverManager.getConnection(URL, user, password);
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setQueryTimeout(30);
+            bind(preparedStatement, sqlParams);
 
-            return ps.executeUpdate();
+            return preparedStatement.executeUpdate();
         }
     }
 
